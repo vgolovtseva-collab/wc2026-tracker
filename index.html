@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>World Cup 2026 · Tracker &amp; Predictions</title>
+<style>
+  :root{
+    --bg:#0e1320; --card:#171f31; --card2:#1d2740; --line:#2a3654;
+    --text:#e8edf7; --muted:#8fa0bf; --accent:#4ade80; --gold:#fbbf24;
+    --red:#f87171; --blue:#60a5fa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,"Segoe UI",Roboto,sans-serif;}
+  header{padding:18px 22px 10px;display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;}
+  header h1{margin:0;font-size:20px}
+  header .sub{color:var(--muted);font-size:12.5px}
+  nav{display:flex;gap:6px;padding:0 22px 14px;flex-wrap:wrap}
+  nav button{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:13.5px}
+  nav button.active{background:var(--accent);color:#08240f;border-color:var(--accent);font-weight:600}
+  main{padding:0 22px 60px;max-width:1100px;margin:0 auto}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 16px}
+  .toolbar select,.toolbar button,.toolbar label{background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
+  .toolbar button{cursor:pointer}
+  .toolbar button.primary{background:var(--blue);border-color:var(--blue);color:#06121f;font-weight:600}
+  .note{color:var(--muted);font-size:12px;margin:6px 0 14px}
+  .day{margin:18px 0 6px;color:var(--gold);font-weight:600;font-size:13px;letter-spacing:.4px}
+  .match{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:7px 0;display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}
+  .match .meta{grid-column:1/-1;display:flex;gap:10px;color:var(--muted);font-size:11.5px;flex-wrap:wrap}
+  .match .meta .mn{color:var(--gold)}
+  .team{display:flex;align-items:center;gap:7px;font-size:15px}
+  .team.home{justify-content:flex-end;text-align:right}
+  .score{display:flex;gap:5px;align-items:center}
+  .score input{width:44px;height:36px;text-align:center;font-size:16px;background:var(--card2);border:1px solid var(--line);border-radius:8px;color:var(--text)}
+  .score input.filled{border-color:var(--accent);color:var(--accent);font-weight:700}
+  .pred{grid-column:1/-1;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+  .bar{flex:1;height:7px;border-radius:4px;overflow:hidden;display:flex;min-width:120px}
+  .bar i{display:block;height:100%}
+  .bar .b1{background:var(--accent)} .bar .bx{background:#5b6b8c} .bar .b2{background:var(--red)}
+  .pen{grid-column:1/-1;font-size:12px;color:var(--gold)}
+  .pen button{background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:3px 8px;cursor:pointer;margin-left:6px}
+  .pen button.win{background:var(--gold);color:#241a02;border-color:var(--gold);font-weight:700}
+  table{border-collapse:collapse;width:100%;margin:8px 0 22px;font-size:13px}
+  th,td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:right}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px}
+  .gtitle{color:var(--gold);font-weight:700;margin:18px 0 2px}
+  .q1{color:var(--accent);font-weight:600}
+  .q3{color:var(--blue)}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:0 26px}
+  .ko-round{margin:20px 0 4px;color:var(--gold);font-weight:700}
+  .ko{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 13px;margin:6px 0;font-size:14px}
+  .ko .m{color:var(--muted);font-size:11px;margin-bottom:3px}
+  .ko .w{color:var(--accent);font-weight:700}
+  .elo-in{width:70px;background:var(--card2);border:1px solid var(--line);border-radius:6px;color:var(--text);padding:4px 6px;text-align:right}
+  .pos{color:var(--accent)} .neg{color:var(--red)}
+  .hidden{display:none}
+  #status{font-size:12.5px;color:var(--muted);margin-left:4px}
+  .pill{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:2px 10px;font-size:11.5px;color:var(--muted);margin-left:6px}
+  @media(max-width:640px){ .match{grid-template-columns:1fr} .team.home{justify-content:flex-start;text-align:left} }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏆 World Cup 2026 · Tracker &amp; Predictions</h1>
+  <span class="sub">Elo model · Poisson · Monte Carlo through the July 19 final</span>
+</header>
+<nav>
+  <button data-tab="matches" class="active">Matches</button>
+  <button data-tab="groups">Groups</button>
+  <button data-tab="ko">Knockout</button>
+  <button data-tab="chances">Team chances</button>
+  <button data-tab="ratings">Ratings</button>
+</nav>
+<main>
+  <div id="tab-matches">
+    <div class="toolbar">
+      <select id="roundFilter">
+        <option value="all">All stages</option>
+        <option value="1">Groups · Matchday 1</option>
+        <option value="2">Groups · Matchday 2</option>
+        <option value="3">Groups · Matchday 3</option>
+        <option value="4">Round of 32</option>
+        <option value="5">Round of 16</option>
+        <option value="6">Quarter-finals</option>
+        <option value="7">Semi-finals</option>
+        <option value="8">Third place &amp; Final</option>
+      </select>
+      <label><input type="checkbox" id="futureOnly"> unplayed only</label>
+      <button class="primary" id="syncBtn">⟳ Sync results from web</button>
+      <button id="importBtn">Import JSON</button>
+      <button id="resetBtn">Reset all</button>
+      <span id="status"></span>
+    </div>
+    <div class="note">Enter the score of played matches — ratings and all predictions update automatically. For a knockout draw, pick the penalty shoot-out winner. Times are local.</div>
+    <div id="matchList"></div>
+  </div>
+
+  <div id="tab-groups" class="hidden">
+    <div class="note">Green — direct qualification (1st–2nd place), blue — current 3rd place (the 8 best third-placed teams reach the round of 32).</div>
+    <div class="grid2" id="groupTables"></div>
+  </div>
+
+  <div id="tab-ko" class="hidden">
+    <div class="note">The bracket fills in as participants are decided. Until the group stage ends, slot codes are shown (e.g. 3CEFHI — the third-placed team from one of groups C/E/F/H/I).</div>
+    <div id="koView"></div>
+  </div>
+
+  <div id="tab-chances" class="hidden">
+    <div class="toolbar">
+      <button class="primary" id="simBtn">▶ Recalculate (Monte Carlo)</button>
+      <select id="simN">
+        <option value="2000">2,000 simulations</option>
+        <option value="5000" selected>5,000 simulations</option>
+        <option value="10000">10,000 simulations</option>
+      </select>
+      <span id="simStatus"></span>
+    </div>
+    <div class="note">Probability of reaching each stage, given the matches already played, current Elo and the real knockout bracket. Unplayed matches are simulated with a Poisson model; ratings update inside every simulation.</div>
+    <table id="chancesTable"></table>
+  </div>
+
+  <div id="tab-ratings" class="hidden">
+    <div class="note">Base Elo is editable (a model parameter approximating eloratings.net at the start of the tournament). “Current” — after recalculation from entered results (K=50, goal-difference multiplier, +80 host bonus).</div>
+    <table id="ratingsTable"></table>
+  </div>
+</main>
+
+<script>
+"use strict";
+/* ================= DATA ================= */
+const RAW = [[1,1,"2026-06-11T19:00:00Z","Mexico City Stadium","Mexico","South Africa","A"],[2,1,"2026-06-12T02:00:00Z","Guadalajara Stadium","Korea Republic","Czechia","A"],[3,1,"2026-06-12T19:00:00Z","Toronto Stadium","Canada","Bosnia and Herzegovina","B"],[4,1,"2026-06-13T01:00:00Z","Los Angeles Stadium","USA","Paraguay","D"],[8,1,"2026-06-13T19:00:00Z","San Francisco Bay Area Stadium","Qatar","Switzerland","B"],[7,1,"2026-06-13T22:00:00Z","New York/New Jersey Stadium","Brazil","Morocco","C"],[5,1,"2026-06-14T01:00:00Z","Boston Stadium","Haiti","Scotland","C"],[6,1,"2026-06-14T04:00:00Z","BC Place Vancouver","Australia","Türkiye","D"],[10,1,"2026-06-14T17:00:00Z","Houston Stadium","Germany","Curaçao","E"],[11,1,"2026-06-14T20:00:00Z","Dallas Stadium","Netherlands","Japan","F"],[9,1,"2026-06-14T23:00:00Z","Philadelphia Stadium","Côte d'Ivoire","Ecuador","E"],[12,1,"2026-06-15T02:00:00Z","Monterrey Stadium","Sweden","Tunisia","F"],[14,1,"2026-06-15T16:00:00Z","Atlanta Stadium","Spain","Cabo Verde","H"],[16,1,"2026-06-15T19:00:00Z","Seattle Stadium","Belgium","Egypt","G"],[13,1,"2026-06-15T22:00:00Z","Miami Stadium","Saudi Arabia","Uruguay","H"],[15,1,"2026-06-16T01:00:00Z","Los Angeles Stadium","IR Iran","New Zealand","G"],[17,1,"2026-06-16T19:00:00Z","New York/New Jersey Stadium","France","Senegal","I"],[18,1,"2026-06-16T22:00:00Z","Boston Stadium","Iraq","Norway","I"],[19,1,"2026-06-17T01:00:00Z","Kansas City Stadium","Argentina","Algeria","J"],[20,1,"2026-06-17T04:00:00Z","San Francisco Bay Area Stadium","Austria","Jordan","J"],[23,1,"2026-06-17T17:00:00Z","Houston Stadium","Portugal","Congo DR","K"],[22,1,"2026-06-17T20:00:00Z","Dallas Stadium","England","Croatia","L"],[21,1,"2026-06-17T23:00:00Z","Toronto Stadium","Ghana","Panama","L"],[24,1,"2026-06-18T02:00:00Z","Mexico City Stadium","Uzbekistan","Colombia","K"],[25,2,"2026-06-18T16:00:00Z","Atlanta Stadium","Czechia","South Africa","A"],[26,2,"2026-06-18T19:00:00Z","Los Angeles Stadium","Switzerland","Bosnia and Herzegovina","B"],[27,2,"2026-06-18T22:00:00Z","BC Place Vancouver","Canada","Qatar","B"],[28,2,"2026-06-19T01:00:00Z","Guadalajara Stadium","Mexico","Korea Republic","A"],[32,2,"2026-06-19T19:00:00Z","Seattle Stadium","USA","Australia","D"],[30,2,"2026-06-19T22:00:00Z","Boston Stadium","Scotland","Morocco","C"],[29,2,"2026-06-20T01:00:00Z","Philadelphia Stadium","Brazil","Haiti","C"],[31,2,"2026-06-20T04:00:00Z","San Francisco Bay Area Stadium","Türkiye","Paraguay","D"],[35,2,"2026-06-20T17:00:00Z","Houston Stadium","Netherlands","Sweden","F"],[33,2,"2026-06-20T20:00:00Z","Toronto Stadium","Germany","Côte d'Ivoire","E"],[34,2,"2026-06-21T00:00:00Z","Kansas City Stadium","Ecuador","Curaçao","E"],[36,2,"2026-06-21T04:00:00Z","Monterrey Stadium","Tunisia","Japan","F"],[38,2,"2026-06-21T16:00:00Z","Atlanta Stadium","Spain","Saudi Arabia","H"],[39,2,"2026-06-21T19:00:00Z","Los Angeles Stadium","Belgium","IR Iran","G"],[37,2,"2026-06-21T22:00:00Z","Miami Stadium","Uruguay","Cabo Verde","H"],[40,2,"2026-06-22T01:00:00Z","BC Place Vancouver","New Zealand","Egypt","G"],[43,2,"2026-06-22T17:00:00Z","Dallas Stadium","Argentina","Austria","J"],[42,2,"2026-06-22T21:00:00Z","Philadelphia Stadium","France","Iraq","I"],[41,2,"2026-06-23T00:00:00Z","New York/New Jersey Stadium","Norway","Senegal","I"],[44,2,"2026-06-23T03:00:00Z","San Francisco Bay Area Stadium","Jordan","Algeria","J"],[47,2,"2026-06-23T17:00:00Z","Houston Stadium","Portugal","Uzbekistan","K"],[45,2,"2026-06-23T20:00:00Z","Boston Stadium","England","Ghana","L"],[46,2,"2026-06-23T23:00:00Z","Toronto Stadium","Panama","Croatia","L"],[48,2,"2026-06-24T02:00:00Z","Guadalajara Stadium","Colombia","Congo DR","K"],[51,3,"2026-06-24T19:00:00Z","BC Place Vancouver","Switzerland","Canada","B"],[52,3,"2026-06-24T19:00:00Z","Seattle Stadium","Bosnia and Herzegovina","Qatar","B"],[49,3,"2026-06-24T22:00:00Z","Miami Stadium","Scotland","Brazil","C"],[50,3,"2026-06-24T22:00:00Z","Atlanta Stadium","Morocco","Haiti","C"],[53,3,"2026-06-25T01:00:00Z","Mexico City Stadium","Czechia","Mexico","A"],[54,3,"2026-06-25T01:00:00Z","Monterrey Stadium","South Africa","Korea Republic","A"],[55,3,"2026-06-25T20:00:00Z","Philadelphia Stadium","Curaçao","Côte d'Ivoire","E"],[56,3,"2026-06-25T20:00:00Z","New York/New Jersey Stadium","Ecuador","Germany","E"],[57,3,"2026-06-25T23:00:00Z","Dallas Stadium","Japan","Sweden","F"],[58,3,"2026-06-25T23:00:00Z","Kansas City Stadium","Tunisia","Netherlands","F"],[59,3,"2026-06-26T02:00:00Z","Los Angeles Stadium","Türkiye","USA","D"],[60,3,"2026-06-26T02:00:00Z","San Francisco Bay Area Stadium","Paraguay","Australia","D"],[61,3,"2026-06-26T19:00:00Z","Boston Stadium","Norway","France","I"],[62,3,"2026-06-26T19:00:00Z","Toronto Stadium","Senegal","Iraq","I"],[65,3,"2026-06-27T00:00:00Z","Houston Stadium","Cabo Verde","Saudi Arabia","H"],[66,3,"2026-06-27T00:00:00Z","Guadalajara Stadium","Uruguay","Spain","H"],[63,3,"2026-06-27T03:00:00Z","Seattle Stadium","Egypt","IR Iran","G"],[64,3,"2026-06-27T03:00:00Z","BC Place Vancouver","New Zealand","Belgium","G"],[67,3,"2026-06-27T21:00:00Z","New York/New Jersey Stadium","Panama","England","L"],[68,3,"2026-06-27T21:00:00Z","Philadelphia Stadium","Croatia","Ghana","L"],[71,3,"2026-06-27T23:30:00Z","Miami Stadium","Colombia","Portugal","K"],[72,3,"2026-06-27T23:30:00Z","Atlanta Stadium","Congo DR","Uzbekistan","K"],[69,3,"2026-06-28T02:00:00Z","Kansas City Stadium","Algeria","Austria","J"],[70,3,"2026-06-28T02:00:00Z","Dallas Stadium","Jordan","Argentina","J"],[73,4,"2026-06-28T19:00:00Z","Los Angeles Stadium","2A","2B",null],[76,4,"2026-06-29T17:00:00Z","Houston Stadium","1C","2F",null],[74,4,"2026-06-29T20:30:00Z","Boston Stadium","1E","3ABCDF",null],[75,4,"2026-06-30T01:00:00Z","Monterrey Stadium","1F","2C",null],[78,4,"2026-06-30T17:00:00Z","Dallas Stadium","2E","2I",null],[77,4,"2026-06-30T21:00:00Z","New York/New Jersey Stadium","1I","3CDFGH",null],[79,4,"2026-07-01T01:00:00Z","Mexico City Stadium","1A","3CEFHI",null],[80,4,"2026-07-01T16:00:00Z","Atlanta Stadium","1L","3EHIJK",null],[82,4,"2026-07-01T20:00:00Z","Seattle Stadium","1G","3AEHIJ",null],[81,4,"2026-07-02T00:00:00Z","San Francisco Bay Area Stadium","1D","3BEFIJ",null],[84,4,"2026-07-02T19:00:00Z","Los Angeles Stadium","1H","2J",null],[83,4,"2026-07-02T23:00:00Z","Toronto Stadium","2K","2L",null],[85,4,"2026-07-03T03:00:00Z","BC Place Vancouver","1B","3EFGIJ",null],[88,4,"2026-07-03T18:00:00Z","Dallas Stadium","2D","2G",null],[86,4,"2026-07-03T22:00:00Z","Miami Stadium","1J","2H",null],[87,4,"2026-07-04T01:30:00Z","Kansas City Stadium","1K","3DEIJL",null],[90,5,"2026-07-04T17:00:00Z","Houston Stadium","To be announced","To be announced",null],[89,5,"2026-07-04T21:00:00Z","Philadelphia Stadium","To be announced","To be announced",null],[91,5,"2026-07-05T20:00:00Z","New York/New Jersey Stadium","To be announced","To be announced",null],[92,5,"2026-07-06T00:00:00Z","Mexico City Stadium","To be announced","To be announced",null],[93,5,"2026-07-06T19:00:00Z","Dallas Stadium","To be announced","To be announced",null],[94,5,"2026-07-07T00:00:00Z","Seattle Stadium","To be announced","To be announced",null],[95,5,"2026-07-07T16:00:00Z","Atlanta Stadium","To be announced","To be announced",null],[96,5,"2026-07-07T20:00:00Z","BC Place Vancouver","To be announced","To be announced",null],[97,6,"2026-07-09T20:00:00Z","Boston Stadium","To be announced","To be announced",null],[98,6,"2026-07-10T19:00:00Z","Los Angeles Stadium","To be announced","To be announced",null],[99,6,"2026-07-11T21:00:00Z","Miami Stadium","To be announced","To be announced",null],[100,6,"2026-07-12T01:00:00Z","Kansas City Stadium","To be announced","To be announced",null],[101,7,"2026-07-14T19:00:00Z","Dallas Stadium","To be announced","To be announced",null],[102,7,"2026-07-15T19:00:00Z","Atlanta Stadium","To be announced","To be announced",null],[103,8,"2026-07-18T21:00:00Z","Miami Stadium","To be announced","To be announced",null],[104,8,"2026-07-19T19:00:00Z","New York/New Jersey Stadium","To be announced","To be announced",null]];
+
+const TEAMS = {
+"Mexico":["Mexico","🇲🇽",1820],"South Africa":["South Africa","🇿🇦",1650],"Korea Republic":["South Korea","🇰🇷",1750],"Czechia":["Czechia","🇨🇿",1700],
+"Canada":["Canada","🇨🇦",1760],"Bosnia and Herzegovina":["Bosnia & Herzegovina","🇧🇦",1660],"Qatar":["Qatar","🇶🇦",1610],"Switzerland":["Switzerland","🇨🇭",1820],
+"Brazil":["Brazil","🇧🇷",1990],"Morocco":["Morocco","🇲🇦",1860],"Haiti":["Haiti","🇭🇹",1500],"Scotland":["Scotland","🏴󠁧󠁢󠁳󠁣󠁴󠁿",1700],
+"USA":["USA","🇺🇸",1790],"Paraguay":["Paraguay","🇵🇾",1780],"Australia":["Australia","🇦🇺",1730],"Türkiye":["Türkiye","🇹🇷",1800],
+"Germany":["Germany","🇩🇪",1940],"Curaçao":["Curaçao","🇨🇼",1540],"Côte d'Ivoire":["Ivory Coast","🇨🇮",1750],"Ecuador":["Ecuador","🇪🇨",1880],
+"Japan":["Japan","🇯🇵",1870],"Netherlands":["Netherlands","🇳🇱",1950],"Sweden":["Sweden","🇸🇪",1680],"Tunisia":["Tunisia","🇹🇳",1720],
+"Belgium":["Belgium","🇧🇪",1880],"Egypt":["Egypt","🇪🇬",1740],"IR Iran":["Iran","🇮🇷",1760],"New Zealand":["New Zealand","🇳🇿",1590],
+"Cabo Verde":["Cabo Verde","🇨🇻",1550],"Saudi Arabia":["Saudi Arabia","🇸🇦",1630],"Spain":["Spain","🇪🇸",2150],"Uruguay":["Uruguay","🇺🇾",1870],
+"France":["France","🇫🇷",2030],"Iraq":["Iraq","🇮🇶",1600],"Norway":["Norway","🇳🇴",1850],"Senegal":["Senegal","🇸🇳",1800],
+"Algeria":["Algeria","🇩🇿",1740],"Argentina":["Argentina","🇦🇷",2140],"Austria":["Austria","🇦🇹",1790],"Jordan":["Jordan","🇯🇴",1620],
+"Colombia":["Colombia","🇨🇴",1900],"Congo DR":["DR Congo","🇨🇩",1610],"Portugal":["Portugal","🇵🇹",2010],"Uzbekistan":["Uzbekistan","🇺🇿",1640],
+"Croatia":["Croatia","🇭🇷",1860],"England":["England","🏴󠁧󠁢󠁥󠁮󠁧󠁿",2020],"Ghana":["Ghana","🇬🇭",1690],"Panama":["Panama","🇵🇦",1690]
+};
+const MX = ["Mexico City Stadium","Guadalajara Stadium","Monterrey Stadium"];
+const CA = ["Toronto Stadium","BC Place Vancouver"];
+function venueHost(v){ if(MX.includes(v)) return "Mexico"; if(CA.includes(v)) return "Canada"; return "USA"; }
+
+// official FIFA bracket: match -> [home source, away source] (match numbers)
+const FEED = {89:[74,77],90:[73,75],91:[76,78],92:[79,80],93:[83,84],94:[81,82],95:[86,88],96:[85,87],
+              97:[89,90],98:[93,94],99:[91,92],100:[95,96],101:[97,98],102:[99,100],104:[101,102]};
+const ROUND_NAMES = {1:"Matchday 1",2:"Matchday 2",3:"Matchday 3",4:"Round of 32",5:"Round of 16",6:"Quarter-final",7:"Semi-final",8:"Final"};
+const HOME_ADV = 80, K_ELO = 50;
+
+const fixtures = RAW.map(m=>({n:m[0],r:m[1],date:new Date(m[2]),venue:m[3],h:m[4],a:m[5],g:m[6]}))
+                    .sort((a,b)=>a.date-b.date||a.n-b.n);
+const byNum = {}; fixtures.forEach(m=>byNum[m.n]=m);
+const GROUPS = {};
+fixtures.filter(m=>m.g).forEach(m=>{ (GROUPS[m.g]=GROUPS[m.g]||new Set()).add(m.h); GROUPS[m.g].add(m.a); });
+
+/* ================= STORAGE ================= */
+let store = JSON.parse(localStorage.getItem("wc2026app")||"{}");
+store.results = store.results||{};   // {n:{h,a,pen}}
+store.elo = store.elo||{};           // base Elo overrides
+function save(){ localStorage.setItem("wc2026app", JSON.stringify(store)); }
+function baseElo(t){ return store.elo[t]!=null ? store.elo[t] : TEAMS[t][2]; }
+
+/* ================= MODEL ================= */
+function lambdas(eH,eA,host,th,ta){
+  let dr = eH-eA;
+  if(host===th) dr+=HOME_ADV; else if(host===ta) dr-=HOME_ADV;
+  const lh = Math.min(4.5,Math.max(0.15,1.32*Math.exp(dr/480)));
+  const la = Math.min(4.5,Math.max(0.15,1.32*Math.exp(-dr/480)));
+  return [lh,la];
+}
+function poisCDFgrid(lh,la){
+  const N=9, ph=[], pa=[];
+  let f=Math.exp(-lh); for(let k=0;k<N;k++){ ph.push(f); f*=lh/(k+1); }
+  f=Math.exp(-la); for(let k=0;k<N;k++){ pa.push(f); f*=la/(k+1); }
+  return [ph,pa];
+}
+function predict(m, ratings){
+  const eH=ratings[m.h], eA=ratings[m.a];
+  const [lh,la]=lambdas(eH,eA,venueHost(m.venue),m.h,m.a);
+  const [ph,pa]=poisCDFgrid(lh,la);
+  let p1=0,px=0,p2=0,best=0,bi=0,bj=0;
+  for(let i=0;i<9;i++)for(let j=0;j<9;j++){
+    const p=ph[i]*pa[j];
+    if(i>j)p1+=p; else if(i===j)px+=p; else p2+=p;
+    if(p>best){best=p;bi=i;bj=j;}
+  }
+  const s=p1+px+p2; p1/=s;px/=s;p2/=s;
+  return {p1,px,p2,lh,la,score:[bi,bj]};
+}
+function gMult(d){ return d<=1?1 : d===2?1.5 : (11+d)/8; }
+function eloUpdate(ratings,m,gh,ga){
+  let dr = ratings[m.h]-ratings[m.a];
+  const host=venueHost(m.venue);
+  if(host===m.h) dr+=HOME_ADV; else if(host===m.a) dr-=HOME_ADV;
+  const we = 1/(1+Math.pow(10,-dr/400));
+  const w = gh>ga?1 : gh===ga?0.5 : 0;
+  const delta = K_ELO*gMult(Math.abs(gh-ga))*(w-we);
+  ratings[m.h]+=delta; ratings[m.a]-=delta;
+}
+function currentRatings(){
+  const r={}; Object.keys(TEAMS).forEach(t=>r[t]=baseElo(t));
+  const ko=koTeams(store.results);
+  for(const m of fixtures){
+    const res=store.results[m.n]; if(!res) continue;
+    let h=m.h,a=m.a;
+    if(m.r>=4){ const t=ko[m.n]; h=t[0]; a=t[1]; }
+    if(TEAMS[h]&&TEAMS[a]) eloUpdate(r,{h,a,venue:m.venue},res.h,res.a);
+  }
+  return r;
+}
+
+/* ================= GROUP TABLES ================= */
+function standings(resultsMap){
+  const st={};
+  for(const[g,set]of Object.entries(GROUPS)){
+    st[g]=[...set].map(t=>({t,g,pts:0,gf:0,ga:0,pl:0}));
+  }
+  for(const m of fixtures){
+    if(!m.g) continue;
+    const res=resultsMap[m.n]; if(!res) continue;
+    const rows=st[m.g], H=rows.find(r=>r.t===m.h), A=rows.find(r=>r.t===m.a);
+    H.pl++;A.pl++; H.gf+=res.h;H.ga+=res.a; A.gf+=res.a;A.ga+=res.h;
+    if(res.h>res.a)H.pts+=3; else if(res.h<res.a)A.pts+=3; else {H.pts++;A.pts++;}
+  }
+  for(const g in st){
+    st[g].sort((x,y)=> y.pts-x.pts || (y.gf-y.ga)-(x.gf-x.ga) || y.gf-x.gf || h2h(resultsMap,g,x.t,y.t) || x.t.localeCompare(y.t));
+  }
+  return st;
+}
+function h2h(resultsMap,g,a,b){
+  const m=fixtures.find(m=>m.g===g&&((m.h===a&&m.a===b)||(m.h===b&&m.a===a)));
+  if(!m) return 0; const res=resultsMap[m.n]; if(!res||res.h===res.a) return 0;
+  const winner = res.h>res.a?m.h:m.a;
+  return winner===a?-1:1;
+}
+function groupDone(resultsMap,g){ return fixtures.filter(m=>m.g===g).every(m=>resultsMap[m.n]); }
+
+function bestThirds(st,resultsMap){
+  const thirds=Object.keys(GROUPS).filter(g=>groupDone(resultsMap,g)).map(g=>st[g][2]);
+  if(thirds.length<12) return null;
+  thirds.sort((x,y)=> y.pts-x.pts || (y.gf-y.ga)-(x.gf-x.ga) || y.gf-x.gf || x.t.localeCompare(y.t));
+  return thirds.slice(0,8);
+}
+function assignThirds(thirds){
+  const slots = fixtures.filter(m=>m.r===4 && typeof m.a==="string" && m.a.startsWith("3"));
+  const res={}, usedG=new Set();
+  function bt(i){
+    if(i===slots.length) return true;
+    const allowed=slots[i].a.slice(1);
+    for(const th of thirds){
+      const gl=th.g.slice(-1);
+      if(!usedG.has(gl)&&allowed.includes(gl)){ usedG.add(gl); res[slots[i].n]=th.t; if(bt(i+1))return true; usedG.delete(gl); }
+    }
+    return false;
+  }
+  if(!bt(0)){ // fallback without slot constraints
+    const pool=[...thirds]; slots.forEach(s=>{ if(!res[s.n]&&pool.length) res[s.n]=pool.shift().t; });
+  }
+  return res;
+}
+// knockout participants: {match number: [home team, away team]}, null fields if undecided
+function koTeams(resultsMap){
+  const st=standings(resultsMap);
+  const out={};
+  const thirds=bestThirds(st,resultsMap);
+  const thirdSlots=thirds?assignThirds(thirds):{};
+  for(const m of fixtures){
+    if(m.r<4) continue;
+    let h=null,a=null;
+    if(m.r===4){
+      h=resolveCode(m.h,st,resultsMap,thirdSlots,m.n);
+      a=resolveCode(m.a,st,resultsMap,thirdSlots,m.n);
+    } else if(m.n===103){
+      h=loser(101,out,resultsMap); a=loser(102,out,resultsMap);
+    } else {
+      const f=FEED[m.n]; h=winner(f[0],out,resultsMap); a=winner(f[1],out,resultsMap);
+    }
+    out[m.n]=[h,a];
+  }
+  return out;
+}
+function resolveCode(code,st,resultsMap,thirdSlots,n){
+  if(TEAMS[code]) return code;
+  if(code.startsWith("3")) return thirdSlots[n]||null;
+  const pos=+code[0], g=code[1];
+  return groupDone(resultsMap,g)?st[g][pos-1].t:null;
+}
+function winner(n,out,resultsMap){
+  const t=out[n], res=resultsMap[n];
+  if(!t||!t[0]||!t[1]||!res) return null;
+  if(res.h>res.a) return t[0]; if(res.h<res.a) return t[1];
+  return res.pen===1?t[0] : res.pen===2?t[1] : null;
+}
+function loser(n,out,resultsMap){
+  const t=out[n], res=resultsMap[n];
+  if(!t||!t[0]||!t[1]||!res) return null;
+  if(res.h>res.a) return t[1]; if(res.h<res.a) return t[0];
+  return res.pen===1?t[1] : res.pen===2?t[0] : null;
+}
+
+/* ================= MONTE CARLO ================= */
+function samplePois(l){ const L=Math.exp(-l); let k=0,p=1; do{k++;p*=Math.random();}while(p>L); return k-1; }
+function simulateOnce(){
+  const r={}; Object.keys(TEAMS).forEach(t=>r[t]=baseElo(t));
+  const res={};
+  // group stage
+  for(const m of fixtures){
+    if(!m.g) continue;
+    const real=store.results[m.n];
+    if(real){ res[m.n]=real; eloUpdate(r,m,real.h,real.a); continue; }
+    const [lh,la]=lambdas(r[m.h],r[m.a],venueHost(m.venue),m.h,m.a);
+    const gh=samplePois(lh),ga=samplePois(la);
+    res[m.n]={h:gh,a:ga}; eloUpdate(r,m,gh,ga);
+  }
+  // knockout
+  const reach={}; // team -> furthest stage reached (4..9, 9 = champion)
+  const st=standings(res);
+  for(const g in st){ st[g].slice(0,2).forEach(row=>reach[row.t]=4); }
+  const thirds=bestThirds(st,res); const slots=assignThirds(thirds);
+  thirds.forEach(th=>reach[th.t]=4);
+  const out={};
+  for(const m of fixtures){
+    if(m.r<4) continue;
+    let h,a;
+    if(m.r===4){ h=resolveCode(m.h,st,res,slots,m.n); a=resolveCode(m.a,st,res,slots,m.n); }
+    else if(m.n===103){ h=loser(101,out,res); a=loser(102,out,res); }
+    else { const f=FEED[m.n]; h=winner(f[0],out,res); a=winner(f[1],out,res); }
+    out[m.n]=[h,a];
+    let real=store.results[m.n];
+    if(real && (real.h!==real.a || real.pen)) { res[m.n]=real; }
+    else {
+      const [lh,la]=lambdas(r[h],r[a],venueHost(m.venue),h,a);
+      let gh=samplePois(lh),ga=samplePois(la),pen=0;
+      if(gh===ga){ const dr=r[h]-r[a]; const e=1/(1+Math.pow(10,-dr/400)); pen=Math.random()<e?1:2; }
+      res[m.n]={h:gh,a:ga,pen};
+    }
+    const rr=res[m.n];
+    if(TEAMS[h]&&TEAMS[a]) eloUpdate(r,{h,a,venue:m.venue},rr.h,rr.a);
+    const w=winner(m.n,out,res);
+    if(m.n===103) continue;
+    if(w&&m.r>=4&&m.n!==103){ reach[w]=Math.max(reach[w]||0, m.r+1); if(m.n===104) reach[w]=9; }
+  }
+  return reach;
+}
+let simResult=null;
+function runSim(){
+  const N=+document.getElementById("simN").value;
+  const t0=performance.now();
+  const tally={}; Object.keys(TEAMS).forEach(t=>tally[t]=[0,0,0,0,0,0]); // R32,R16,QF,SF,Final,Champion
+  for(let i=0;i<N;i++){
+    const reach=simulateOnce();
+    for(const[t,s]of Object.entries(reach)){
+      if(s>=4)tally[t][0]++; if(s>=5)tally[t][1]++; if(s>=6)tally[t][2]++;
+      if(s>=7)tally[t][3]++; if(s>=8)tally[t][4]++; if(s>=9)tally[t][5]++;
+    }
+  }
+  simResult={tally,N};
+  document.getElementById("simStatus").textContent=`Done: ${N.toLocaleString("en")} simulations in ${((performance.now()-t0)/1000).toFixed(1)}s`;
+  renderChances();
+}
+
+/* ================= UI ================= */
+function el(t){ return TEAMS[t] ? `${TEAMS[t][1]} ${TEAMS[t][0]}` : `<span style="color:var(--muted)">${t}</span>`; }
+const fmtDay=new Intl.DateTimeFormat("en-GB",{weekday:"short",day:"numeric",month:"long"});
+const fmtTime=new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit"});
+
+function renderMatches(){
+  const ratings=currentRatings();
+  const ko=koTeams(store.results);
+  const rf=document.getElementById("roundFilter").value;
+  const fut=document.getElementById("futureOnly").checked;
+  let html="",lastDay="";
+  for(const m of fixtures){
+    if(rf!=="all"&&m.r!==+rf) continue;
+    const res=store.results[m.n];
+    if(fut&&res) continue;
+    let h=m.h,a=m.a;
+    if(m.r>=4){ const t=ko[m.n]; h=t[0]||labelKO(m,0); a=t[1]||labelKO(m,1); }
+    const day=fmtDay.format(m.date);
+    if(day!==lastDay){ html+=`<div class="day">${day}</div>`; lastDay=day; }
+    const known=TEAMS[h]&&TEAMS[a];
+    let pred="";
+    if(known&&!res){
+      const p=predict({h,a,venue:m.venue},ratings);
+      pred=`<div class="pred">
+        <span>Home ${(p.p1*100).toFixed(0)}%</span>
+        <div class="bar"><i class="b1" style="width:${p.p1*100}%"></i><i class="bx" style="width:${p.px*100}%"></i><i class="b2" style="width:${p.p2*100}%"></i></div>
+        <span>Draw ${(p.px*100).toFixed(0)}% · Away ${(p.p2*100).toFixed(0)}%</span>
+        <span>likely ${p.score[0]}:${p.score[1]}</span></div>`;
+    }
+    let pen="";
+    if(m.r>=4&&res&&res.h===res.a&&known){
+      pen=`<div class="pen">Penalties — winner:
+        <button class="${res.pen===1?'win':''}" onclick="setPen(${m.n},1)">${TEAMS[h][0]}</button>
+        <button class="${res.pen===2?'win':''}" onclick="setPen(${m.n},2)">${TEAMS[a][0]}</button></div>`;
+    }
+    html+=`<div class="match">
+      <div class="meta"><span class="mn">#${m.n}</span><span>${ROUND_NAMES[m.r]}${m.g?" · Group "+m.g:""}</span><span>${fmtTime.format(m.date)}</span><span>${m.venue}</span></div>
+      <div class="team home">${el(h)}</div>
+      <div class="score">
+        <input type="number" min="0" max="15" inputmode="numeric" class="${res?'filled':''}" value="${res?res.h:''}" onchange="setScore(${m.n},'h',this.value)" ${known?"":"disabled"}>
+        <span>:</span>
+        <input type="number" min="0" max="15" inputmode="numeric" class="${res?'filled':''}" value="${res?res.a:''}" onchange="setScore(${m.n},'a',this.value)" ${known?"":"disabled"}>
+      </div>
+      <div class="team">${el(a)}</div>
+      ${pred}${pen}
+    </div>`;
+  }
+  document.getElementById("matchList").innerHTML=html||"<p class='note'>No matches for this filter.</p>";
+}
+function labelKO(m,side){
+  if(m.r===4) return side===0?m.h:m.a;
+  if(m.n===103) return "Loser M"+(side===0?101:102);
+  return "Winner M"+FEED[m.n][side];
+}
+window.setScore=function(n,side,val){
+  const m=byNum[n];
+  if(val===""){ delete store.results[n]; save(); rerender(); return; }
+  const r=store.results[n]||{h:0,a:0};
+  r[side]=Math.max(0,Math.min(15,parseInt(val)||0));
+  if(r.h!==r.a) delete r.pen;
+  store.results[n]=r; save(); rerender();
+};
+window.setPen=function(n,who){ store.results[n].pen=who; save(); rerender(); };
+
+function renderGroups(){
+  const st=standings(store.results);
+  let html="";
+  for(const g of Object.keys(GROUPS).sort()){
+    html+=`<div><div class="gtitle">Group ${g}</div>
+    <table><tr><th>Team</th><th>P</th><th>GF-GA</th><th>GD</th><th>Pts</th></tr>`;
+    st[g].forEach((r,i)=>{
+      const cls=i<2?"q1":i===2?"q3":"";
+      html+=`<tr class="${cls}"><td>${el(r.t)}</td><td>${r.pl}</td><td>${r.gf}-${r.ga}</td><td>${r.gf-r.ga>0?"+":""}${r.gf-r.ga}</td><td><b>${r.pts}</b></td></tr>`;
+    });
+    html+=`</table></div>`;
+  }
+  document.getElementById("groupTables").innerHTML=html;
+}
+
+function renderKO(){
+  const ko=koTeams(store.results);
+  let html="",lastR=0;
+  for(const m of fixtures){
+    if(m.r<4)continue;
+    if(m.r!==lastR){ html+=`<div class="ko-round">${ROUND_NAMES[m.r]}${m.n===103?"":""}</div>`; lastR=m.r; }
+    const t=ko[m.n]; const res=store.results[m.n];
+    const h=t[0]||labelKO(m,0), a=t[1]||labelKO(m,1);
+    const w=res?winner(m.n,ko,store.results):null;
+    const title=m.n===103?" · Third-place match":(m.n===104?" · FINAL":"");
+    html+=`<div class="ko"><div class="m">#${m.n} · ${fmtDay.format(m.date)} · ${m.venue}${title}</div>
+      <span class="${w===h?'w':''}">${el(h)}</span> ${res?`<b>${res.h}:${res.a}${res.pen?" (pens)":""}</b>`:"—"} <span class="${w===a?'w':''}">${el(a)}</span></div>`;
+  }
+  document.getElementById("koView").innerHTML=html;
+}
+
+function renderChances(){
+  if(!simResult){ document.getElementById("chancesTable").innerHTML=""; return; }
+  const {tally,N}=simResult;
+  const rows=Object.keys(TEAMS).map(t=>({t,v:tally[t].map(x=>x/N*100)}))
+    .sort((a,b)=> b.v[5]-a.v[5] || b.v[4]-a.v[4] || b.v[3]-a.v[3]);
+  let html=`<tr><th>Team</th><th>R32</th><th>R16</th><th>QF</th><th>SF</th><th>Final</th><th>🏆 Champion</th></tr>`;
+  rows.forEach(r=>{
+    const f=x=> x>=99.95?"100":x<0.05?"–":x.toFixed(1);
+    html+=`<tr><td>${el(r.t)}</td>${r.v.map((x,i)=>`<td${i===5&&x>5?' style="color:var(--gold);font-weight:700"':''}>${f(x)}</td>`).join("")}</tr>`;
+  });
+  document.getElementById("chancesTable").innerHTML=html;
+}
+
+function renderRatings(){
+  const cur=currentRatings();
+  const rows=Object.keys(TEAMS).sort((a,b)=>cur[b]-cur[a]);
+  let html=`<tr><th>Team</th><th>Base Elo</th><th>Current</th><th>Δ</th></tr>`;
+  rows.forEach(t=>{
+    const d=cur[t]-baseElo(t);
+    html+=`<tr><td>${el(t)}</td>
+      <td><input class="elo-in" type="number" value="${baseElo(t)}" onchange="setElo('${t.replace(/'/g,"\\'")}',this.value)"></td>
+      <td>${Math.round(cur[t])}</td>
+      <td class="${d>=1?'pos':d<=-1?'neg':''}">${d>0?"+":""}${Math.round(d)}</td></tr>`;
+  });
+  document.getElementById("ratingsTable").innerHTML=html;
+}
+window.setElo=function(t,v){ store.elo[t]=parseInt(v)||TEAMS[t][2]; save(); rerender(); };
+
+/* ================= SYNC ================= */
+const FEED_URL="https://fixturedownload.com/feed/json/fifa-world-cup-2026";
+async function sync(){
+  const s=document.getElementById("status");
+  s.textContent="Loading…";
+  const urls=[FEED_URL,
+    "https://api.allorigins.win/raw?url="+encodeURIComponent(FEED_URL),
+    "https://corsproxy.io/?url="+encodeURIComponent(FEED_URL)];
+  for(const u of urls){
+    try{
+      const r=await fetch(u,{signal:AbortSignal.timeout(15000)});
+      if(!r.ok) continue;
+      const data=await r.json();
+      applyFeed(data,s); return;
+    }catch(e){}
+  }
+  s.textContent="⚠ Network/CORS unavailable — use “Import JSON” (paste the feed contents) or enter scores manually.";
+}
+function applyFeed(data,s){
+  let n=0;
+  for(const m of data){
+    if(m.HomeTeamScore!=null&&m.AwayTeamScore!=null){
+      const old=store.results[m.MatchNumber];
+      store.results[m.MatchNumber]={h:m.HomeTeamScore,a:m.AwayTeamScore,...(old&&old.pen?{pen:old.pen}:{})};
+      n++;
+    }
+  }
+  save(); rerender();
+  s.textContent=`✓ Results loaded: ${n}`;
+}
+function importJSON(){
+  const txt=prompt("Paste the feed JSON (contents of "+FEED_URL+"):");
+  if(!txt) return;
+  try{ applyFeed(JSON.parse(txt),document.getElementById("status")); }
+  catch(e){ alert("Could not parse JSON: "+e.message); }
+}
+
+/* ================= SHELL ================= */
+function rerender(){ renderMatches(); renderGroups(); renderKO(); renderRatings(); }
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  ["matches","groups","ko","chances","ratings"].forEach(t=>
+    document.getElementById("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));
+  if(b.dataset.tab==="chances"&&!simResult) runSim();
+});
+document.getElementById("roundFilter").onchange=renderMatches;
+document.getElementById("futureOnly").onchange=renderMatches;
+document.getElementById("simBtn").onclick=runSim;
+document.getElementById("syncBtn").onclick=sync;
+document.getElementById("importBtn").onclick=importJSON;
+document.getElementById("resetBtn").onclick=()=>{
+  if(confirm("Delete all entered results and rating edits?")){ store={results:{},elo:{}}; save(); simResult=null; rerender(); renderChances(); }
+};
+rerender();
+</script>
+</body>
+</html>
