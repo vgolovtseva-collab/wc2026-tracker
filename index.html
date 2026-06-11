@@ -55,6 +55,13 @@
   .elo-in{width:70px;background:var(--card2);border:1px solid var(--line);border-radius:6px;color:var(--text);padding:4px 6px;text-align:right}
   .pos{color:var(--accent)} .neg{color:var(--red)}
   .hidden{display:none}
+  .help{max-width:760px;font-size:13.5px}
+  .help h2{color:var(--gold);font-size:16px;margin:24px 0 8px}
+  .help h3{color:var(--accent);font-size:14px;margin:16px 0 4px}
+  .help p,.help li{color:var(--text);line-height:1.55}
+  .help li{margin:4px 0}
+  .help b{color:var(--gold)}
+  .help a{color:var(--blue)}
   #status{font-size:12.5px;color:var(--muted);margin-left:4px}
   .pill{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:20px;padding:2px 10px;font-size:11.5px;color:var(--muted);margin-left:6px}
   @media(max-width:640px){ .match{grid-template-columns:1fr} .team.home{justify-content:flex-start;text-align:left} }
@@ -71,6 +78,7 @@
   <button data-tab="ko">Knockout</button>
   <button data-tab="chances">Team chances</button>
   <button data-tab="ratings">Ratings</button>
+  <button data-tab="help">Help</button>
 </nav>
 <main>
   <div id="tab-matches">
@@ -123,6 +131,44 @@
   <div id="tab-ratings" class="hidden">
     <div class="note">Base Elo is editable (a model parameter approximating eloratings.net at the start of the tournament). “Current” — after recalculation from entered results (K=50, goal-difference multiplier, +80 host bonus).</div>
     <table id="ratingsTable"></table>
+  </div>
+
+  <div id="tab-help" class="hidden">
+    <div class="help">
+      <h2>How to use the app</h2>
+      <h3>Matches</h3>
+      <ul>
+        <li>All 104 matches with real dates, venues and kick-off times (your local time zone).</li>
+        <li>Every unplayed match shows a prediction: <b>Home / Draw / Away</b> probabilities and the most likely score.</li>
+        <li>When a match finishes, press <b>⟳ Sync results from web</b> to pull real scores — or type the score in yourself. Both do exactly the same thing (sync overwrites manual entries once the official score is in the feed).</li>
+        <li>If a knockout match ends in a draw, pick the penalty shoot-out winner with the buttons under the match.</li>
+      </ul>
+      <h3>Groups</h3>
+      <p>Live tables of all 12 groups, recalculated on every result. Green — direct qualification (top 2), blue — current 3rd place (the 8 best third-placed teams also advance).</p>
+      <h3>Knockout</h3>
+      <p>The official FIFA bracket from the Round of 32 to the final. It fills in automatically as group standings are decided, including the allocation of third-placed teams to their bracket slots.</p>
+      <h3>Team chances</h3>
+      <p>Press <b>▶ Recalculate</b> and the app simulates the entire remaining tournament thousands of times, then shows every team's probability of reaching each stage — all the way to lifting the trophy.</p>
+      <h3>Ratings</h3>
+      <p>Each team's Elo strength. Starting values are editable — if you think the model underrates someone, change the number and all predictions update instantly. <b>Reset all</b> wipes your results and edits.</p>
+
+      <h2>How the predictions work</h2>
+      <ol>
+        <li><b>Elo ratings.</b> Every team starts with a strength rating (≈ eloratings.net at the start of the tournament). Each result updates it: beating a strong team earns many points, beating a weak one few; bigger margins move ratings more (K=50 with a goal-difference multiplier). Mexico, the USA and Canada get a +80 home bonus in their own country. This is how the app learns from results — a team on a surprise run climbs the ratings and its future predictions sharpen match by match.</li>
+        <li><b>Poisson score model.</b> The Elo gap in a match converts into expected goals for each side; a Poisson distribution over all scorelines gives the Home/Draw/Away percentages and the likely score on each match card.</li>
+        <li><b>Monte Carlo simulation.</b> The whole remaining tournament is played out 2,000–10,000 times: unplayed matches are randomly “rolled” from their Poisson distributions, group tables use FIFA tiebreakers, third-placed teams go into the real bracket, knockout draws are settled as shoot-outs, and Elo keeps updating inside every simulation. How often a team reaches a stage across all runs = its probability.</li>
+      </ol>
+      <p>Matches you've already entered are treated as facts — only the future is simulated. The more results you feed in, the sharper the forecasts.</p>
+
+      <h2>Good to know</h2>
+      <ul>
+        <li><b>Your data is local.</b> Results and rating edits live in your browser (localStorage). A different device or browser starts fresh; nobody else sees your data.</li>
+        <li><b>Sync needs internet</b> and uses public proxies — if it fails, paste the feed JSON via “Import JSON” or type scores manually.</li>
+        <li><b>Penalty winners aren't in the feed</b> — after syncing a drawn knockout match, pick who went through by hand.</li>
+        <li>It's a model, not a crystal ball 🙂 — probabilities are calibrated guesses from team strength, not inside info on lineups or injuries.</li>
+        <li>Source &amp; full guide: <a href="https://github.com/vgolovtseva-collab/wc2026-tracker" target="_blank" rel="noopener">github.com/vgolovtseva-collab/wc2026-tracker</a></li>
+      </ul>
+    </div>
   </div>
 </main>
 
@@ -532,7 +578,7 @@ function rerender(){ renderMatches(); renderGroups(); renderKO(); renderRatings(
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
   document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
   b.classList.add("active");
-  ["matches","groups","ko","chances","ratings"].forEach(t=>
+  ["matches","groups","ko","chances","ratings","help"].forEach(t=>
     document.getElementById("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));
   if(b.dataset.tab==="chances"&&!simResult) runSim();
 });
